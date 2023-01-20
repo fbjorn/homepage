@@ -1,1 +1,6 @@
-# homepage
+# homepage 
+
+```shell
+pnpm install
+pnpm build
+```

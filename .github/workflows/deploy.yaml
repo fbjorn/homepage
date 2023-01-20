@@ -1,0 +1,37 @@
+name: Deploy to GitHub pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Build
+        run: pnpm install && pnpm build
+
+      - name: Deploy to GitHub Pages
+        if: success()
+        run: |
+          SRC="$(pwd)"
+          mkdir /tmp/github-pages && cd /tmp/github-pages
+          git init . && git checkout --orphan "${BRANCH}"
+          cp -r "${SRC}/${DEPLOY_DIR}"/* .
+          [[ ! -z "${FQDN}" ]] && echo "${FQDN}" > CNAME
+          git config user.name "GitHub" && git config user.email "<noreply@github.com>"
+          git add . && git status && git commit --message "${MESSAGE}"
+          git push -f -q "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "${BRANCH}"
+        env:
+          DEPLOY_DIR: build
+          FQDN: fbjorn.cc
+          MESSAGE: Deploy to GitHub Pages
+          BRANCH: gh-pages
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
