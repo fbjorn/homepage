@@ -21,7 +21,6 @@ jobs:
       - name: Deploy to GitHub Pages
         if: success()
         run: |
-          set -x
           SRC="$(pwd)"
           mkdir /tmp/github-pages && cd /tmp/github-pages
           git init . && git checkout --orphan "${BRANCH}"
@@ -29,10 +28,9 @@ jobs:
           [[ ! -z "${FQDN}" ]] && echo "${FQDN}" > CNAME
           git config user.name "GitHub" && git config user.email "<noreply@github.com>"
           git add . && git status && git commit --message "${MESSAGE}"
-          git push -f -q "https://fbjorn:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" "${BRANCH}"
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" "${BRANCH}"
         env:
           DEPLOY_DIR: build
           FQDN: fbjorn.cc
           MESSAGE: Deploy to GitHub Pages
           BRANCH: gh-pages
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
